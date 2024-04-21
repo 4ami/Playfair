@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ActionButtons extends StatefulWidget {
-  const ActionButtons(
-      {super.key,
-      required this.onPressedDecryption,
-      required this.onPressedEncryption});
-  final VoidCallback onPressedEncryption;
-  final VoidCallback onPressedDecryption;
+  const ActionButtons({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
   @override
   State<ActionButtons> createState() => _ActionButtonsState();
 }
@@ -15,40 +12,29 @@ class _ActionButtonsState extends State<ActionButtons> {
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      flex: 1,
+      flex: 2,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _encryptButton(callback: widget.onPressedEncryption),
-          const SizedBox(height: 50),
-          _decryptButton(callback: widget.onPressedDecryption),
+          _encryptButton(callback: widget.onPressed),
         ],
       ),
     );
   }
 }
 
-ElevatedButton _decryptButton({required VoidCallback callback}) {
-  return ElevatedButton.icon(
-    onPressed: callback,
-    icon: const Icon(Icons.lock_open),
-    label: const Text("Decrypt"),
-    style: _buttonStyle().copyWith(
-      foregroundColor: const MaterialStatePropertyAll(Colors.black),
-      backgroundColor: MaterialStatePropertyAll(Colors.greenAccent[100]),
-    ),
-  );
-}
-
 ElevatedButton _encryptButton({required VoidCallback callback}) {
   return ElevatedButton.icon(
     onPressed: callback,
-    icon: const Icon(Icons.lock),
-    label: const Text("Encrypt"),
+    icon: Icon(
+      Icons.edit_document,
+      color: Colors.grey[200]!,
+    ),
+    label: const Text("Proccess Text"),
     style: _buttonStyle().copyWith(
       foregroundColor: const MaterialStatePropertyAll(Colors.black),
-      backgroundColor: MaterialStatePropertyAll(Colors.redAccent[100]),
+      backgroundColor: MaterialStatePropertyAll(Colors.greenAccent[400]),
     ),
   );
 }
@@ -57,7 +43,7 @@ ButtonStyle _buttonStyle() {
   return ButtonStyle(
     backgroundColor: const MaterialStatePropertyAll(Colors.white),
     shadowColor: MaterialStatePropertyAll(Colors.grey[200]),
-    overlayColor: MaterialStatePropertyAll(Colors.teal[50]),
+    overlayColor: MaterialStatePropertyAll(Colors.orangeAccent[400]),
     surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
   );
 }

@@ -63,14 +63,17 @@ class Playfair extends BuildGrid {
           temp.add(
             '${keyMatrix[r1][(col1 + 1) % 5]}${keyMatrix[r2][(col2 + 1) % 5]}',
           );
+          log('Added: ${temp.last}');
         } else if (col1 == col2) {
           temp.add(
             '${keyMatrix[(r1 + 1) % 5][col1]}${keyMatrix[(r2 + 1) % 5][col2]}',
           );
+          log('Added: ${temp.last}');
         } else {
           temp.add(
             '${keyMatrix[r1][col2]}${keyMatrix[r2][col1]}',
           );
+          log('Added: ${temp.last}');
         }
       }
       log('Cipher: $temp');

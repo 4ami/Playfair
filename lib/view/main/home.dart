@@ -20,21 +20,21 @@ class Home extends StatelessWidget {
           forceMaterialTransparency: true,
           centerTitle: true,
           title: _title(context),
-          toolbarHeight: 120,
         ),
         drawer: Drawer(
           child: ListView(
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(color: Colors.teal[50]),
-                duration: const Duration(milliseconds: 3500),
-                curve: Curves.bounceInOut,
                 child: Center(
                   child: Text(
                     AppRoutes.selectedRoute == 0
                         ? "Playfair Page"
                         : "Team Information",
                     textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(fontFamily: 'Exo'),
                   ),
                 ),
               ),
@@ -66,38 +66,23 @@ class Home extends StatelessWidget {
   Padding _title(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 25),
-      child: Container(
-        height: 100,
-        width: 350,
-        decoration: _titleDecoration(),
-        child: Center(
-          child: Text(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
             textAlign: TextAlign.center,
             "Playfair Cipher",
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  fontFamily: 'Exo',
+                  color: Colors.grey[800],
+                ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Image.asset('assets/shield.png', width: 50),
+          ),
+        ],
       ),
-    );
-  }
-
-  BoxDecoration _titleDecoration() {
-    return BoxDecoration(
-      borderRadius: const BorderRadius.all(Radius.circular(50)),
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.shade200,
-          blurRadius: 10,
-          spreadRadius: 6,
-        ),
-        BoxShadow(
-          color: Colors.grey.shade300,
-          blurRadius: 6,
-          spreadRadius: 2,
-          blurStyle: BlurStyle.inner,
-        )
-      ],
     );
   }
 }
@@ -115,6 +100,8 @@ class _BodyState extends State<Body> {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   final TextEditingController _resultController = TextEditingController();
+  bool encrypt = false;
+  bool choice = false;
   bool isLoading = false;
   bool showGrid = false;
   String gridAlphabet = '';
@@ -130,8 +117,12 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          ...pageDesign(),
+          ...pageDesign(
+            context: context,
+            blur: showGrid,
+          ),
           _mainBody(context),
           isLoading ? const Loading() : const SizedBox(),
         ],
@@ -141,22 +132,103 @@ class _BodyState extends State<Body> {
 
   SingleChildScrollView _mainBody(BuildContext context) {
     return SingleChildScrollView(
-      child: Center(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        children: [
+          Row(
             children: [
-              _secretField(context),
-              showGrid ? _gridTitle(context) : const SizedBox(),
-              showGrid
-                  ? EncryptionDecryptionTable(alphabet: gridAlphabet)
-                  : const SizedBox(),
-              !showGrid ? _showGridButton(context) : const SizedBox(),
-              showGrid ? _processFeilds(context) : const SizedBox(),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50.0, vertical: 50),
+                child: Container(
+                  height: 200,
+                  decoration: _titleDecoration(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _secretField(context),
+                      !showGrid ? _showGridButton(context) : const SizedBox(),
+                      // showGrid ? _processFeilds(context) : const SizedBox(),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    showGrid ? _gridTitle(context) : const SizedBox(),
+                    showGrid
+                        ? EncryptionDecryptionTable(alphabet: gridAlphabet)
+                        : const SizedBox(),
+                  ],
+                ),
+              ),
             ],
           ),
+          (showGrid)
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _action(
+                        context: context,
+                        onPressed: () => setState(() {
+                          encrypt = true;
+                          choice ? 0 : choice = true;
+                        }),
+                        color: Colors.cyan[100]!,
+                        text: "Encryption",
+                      ),
+                      const SizedBox(width: 50),
+                      _action(
+                        context: context,
+                        onPressed: () => setState(() {
+                          encrypt = false;
+                          choice ? 0 : choice = true;
+                        }),
+                        color: Colors.redAccent[100]!,
+                        text: "Decryption",
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox(),
+          choice
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      showGrid ? _processFeilds(context) : const SizedBox(),
+                    ],
+                  ),
+                )
+              : const SizedBox(),
+        ],
+      ),
+    );
+  }
+
+  SizedBox _action(
+      {required BuildContext context,
+      required VoidCallback onPressed,
+      required Color color,
+      required String text}) {
+    return SizedBox(
+      width: 250,
+      child: FloatingActionButton(
+        shape: const StadiumBorder(),
+        backgroundColor: Colors.white,
+        onPressed: onPressed,
+        hoverColor: color,
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontFamily: 'Exo',
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ),
     );
@@ -169,7 +241,7 @@ class _BodyState extends State<Body> {
         height: 200,
         width: MediaQuery.of(context).size.width * .9,
         decoration: _titleDecoration().copyWith(
-          color: Colors.indigo[50],
+          color: Colors.grey[50],
         ),
         child: Row(
           children: [
@@ -193,7 +265,7 @@ class _BodyState extends State<Body> {
                       decoration: _fieldDecoration(
                         context,
                         'Message',
-                        'Enter message to Encrypt / Decrypt: ',
+                        'Enter message to ${encrypt ? 'Encrypt' : 'Decrypt'}: ',
                       ),
                     ),
                   ),
@@ -213,38 +285,7 @@ class _BodyState extends State<Body> {
               ),
             ),
             ActionButtons(
-              onPressedEncryption: () {
-                if (_playfairKey.currentState!.validate()) {
-                  Playfair encryption = Playfair(key: gridAlphabet);
-                  List<String> block = encryption.divideMessage(
-                    message: _messageController.text.trim(),
-                  );
-                  log(block.toString());
-                  _messageController.text = block.join(' ');
-                  String encryptedText = encryption.encrypt(
-                    message: block,
-                    key: gridAlphabet,
-                  );
-                  log('encrypted text: $encryptedText');
-                  _resultController.text = encryptedText;
-                }
-              },
-              onPressedDecryption: () {
-                if (_playfairKey.currentState!.validate()) {
-                  Playfair decryption = Playfair(key: gridAlphabet);
-                  List<String> block = decryption.divideMessage(
-                    message: _messageController.text.trim(),
-                  );
-                  log(block.toString());
-                  _messageController.text = block.join(' ');
-                  String decrpted = decryption.decrypt(
-                    message: block,
-                    key: gridAlphabet,
-                  );
-                  log("decrypted text: $decrpted");
-                  _resultController.text = decrpted;
-                }
-              },
+              onPressed: encrypt ? _encryption : _decryption,
             ),
           ],
         ),
@@ -252,12 +293,47 @@ class _BodyState extends State<Body> {
     );
   }
 
+  void _decryption() {
+    if (_playfairKey.currentState!.validate()) {
+      Playfair decryption = Playfair(key: gridAlphabet);
+      List<String> block = decryption.divideMessage(
+        message: _messageController.text.trim(),
+      );
+      log(block.toString());
+      _messageController.text = block.join(' ');
+      String decrpted = decryption.decrypt(
+        message: block,
+        key: gridAlphabet,
+      );
+      log("decrypted text: $decrpted");
+      _resultController.text = decrpted;
+    }
+  }
+
+  void _encryption() {
+    if (_playfairKey.currentState!.validate()) {
+      Playfair encryption = Playfair(key: gridAlphabet);
+      List<String> block = encryption.divideMessage(
+        message: _messageController.text.trim(),
+      );
+      log(block.toString());
+      _messageController.text = block.join(' ');
+      String encryptedText = encryption.encrypt(
+        message: block,
+        key: gridAlphabet,
+      );
+      log('encrypted text: $encryptedText');
+      _resultController.text = encryptedText;
+    }
+  }
+
   Padding _gridTitle(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25),
       child: Text(
         "Encryption / Decryption Grid 5x5",
-        style: Theme.of(context).textTheme.titleLarge,
+        style:
+            Theme.of(context).textTheme.titleLarge!.copyWith(fontFamily: 'Exo'),
       ),
     );
   }
@@ -266,21 +342,26 @@ class _BodyState extends State<Body> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * .4,
-        ),
-        child: TextFormField(
-          enabled: !showGrid,
-          validator: (v) {
-            if (v!.isEmpty) return 'Secret Key Required';
-            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(v)) {
-              return 'Secret Key Contains Only Alphabet!';
-            }
-            return null;
-          },
-          controller: _controller,
-          decoration:
-              _fieldDecoration(context, 'Secret Key', 'Enter your secret: '),
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: SizedBox(
+          width: 350,
+          child: TextFormField(
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(fontFamily: 'Exo', fontSize: showGrid ? 25 : 16),
+            enabled: !showGrid,
+            validator: (v) {
+              if (v!.isEmpty) return 'Secret Key Required';
+              if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(v)) {
+                return 'Secret Key Contains Only Alphabet!';
+              }
+              return null;
+            },
+            controller: _controller,
+            decoration:
+                _fieldDecoration(context, 'Secret Key', 'Enter your secret: '),
+          ),
         ),
       ),
     );
@@ -289,7 +370,13 @@ class _BodyState extends State<Body> {
   InputDecoration _fieldDecoration(
       BuildContext context, String label, String hint) {
     return InputDecoration(
-      label: Text(label, style: Theme.of(context).textTheme.titleMedium),
+      label: Text(
+        label,
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontFamily: 'Exo'),
+      ),
       hintText: hint,
       border: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.black)),
@@ -301,7 +388,7 @@ class _BodyState extends State<Body> {
 
   Padding _showGridButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 25),
+      padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 100),
       child: ElevatedButton(
         style: _buttonStyle(),
         onPressed: () async {
@@ -333,7 +420,7 @@ class _BodyState extends State<Body> {
           style: Theme.of(context)
               .textTheme
               .titleMedium!
-              .copyWith(fontWeight: FontWeight.bold),
+              .copyWith(fontWeight: FontWeight.bold, fontFamily: 'Exo'),
         ),
       ),
     );
@@ -343,7 +430,7 @@ class _BodyState extends State<Body> {
     return ButtonStyle(
       backgroundColor: const MaterialStatePropertyAll(Colors.white),
       shadowColor: MaterialStatePropertyAll(Colors.grey[200]),
-      overlayColor: MaterialStatePropertyAll(Colors.teal[50]),
+      overlayColor: MaterialStatePropertyAll(Colors.grey[50]),
       surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
     );
   }

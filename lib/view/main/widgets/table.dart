@@ -14,8 +14,8 @@ class _EncryptionDecryptionTableState extends State<EncryptionDecryptionTable> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * .4,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 50,
         vertical: 10,
       ),
       child: Table(
